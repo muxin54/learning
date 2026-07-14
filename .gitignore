@@ -12,6 +12,10 @@ __pycache__/
 # 上传的文件
 uploads/
 
+# 日志文件
+logs/
+app.log
+
 # IDE
 .vscode/
 .idea/

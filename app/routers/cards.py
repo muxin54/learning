@@ -12,7 +12,7 @@ from datetime import datetime
 from app.database import get_session
 from app.models import Card
 from app.schemas import CardCreate, CardUpdate,CardOut,CardListResponse
-
+from app.dependencies import pagination
 # 创建路由器 —— 把所有 /cards 相关的接口都挂在它下面
 router = APIRouter(prefix="/cards", tags=["名片管理"])
 
@@ -20,13 +20,18 @@ router = APIRouter(prefix="/cards", tags=["名片管理"])
 # ============================================
 # GET —— 列表（搜索 + 分页）
 # ============================================
-@router.get("/",response_model=CardListResponse)
+@router.get(
+    "/",
+    response_model=CardListResponse,
+    summary="搜索名片列表",
+    description="支持按姓名/公司模糊搜索，可组合关键词与公司名，支持分页。",
+    response_description="分页的名片列表",
+)
 async def list_cards(
     keyword: str = "",
     company: str = "",
-    page: int = 1,
-    page_size: int = 10,
     session: AsyncSession = Depends(get_session),
+    p:dict=Depends(pagination)
     
 ):
     """名片列表：支持按姓名/公司搜索 + 分页"""
@@ -50,17 +55,18 @@ async def list_cards(
         ))
     if company:
         stmt = stmt.where(Card.company.ilike(f"%{company}%"))
-    stmt = stmt.limit(page_size).offset((page - 1) * page_size)
+    stmt = stmt.limit(p["page_size"]).offset(p["offset"])
 
     result = await session.execute(stmt)
     cards = result.scalars().all()
     
     return {
     "total": total,
-    "page": page,
-    "page_size": page_size,
-    "total_pages": (total + page_size - 1) // page_size if total else 0,
+    "total_pages": (total + p["page_size"] - 1) // p["page_size"] if total else 0,
     "data": cards,
+    "page":p["page"],
+    "page_size":p["page_size"]
+
 }
 
 @router.get("/stats/access")
@@ -77,7 +83,12 @@ async def cookie_count(response:Response,first_visit:str=Cookie(default="")):
 # ============================================
 # GET —— 查单个
 # ============================================
-@router.get("/{card_id}",response_model=CardOut)
+@router.get(
+    "/{card_id}",
+    response_model=CardOut,
+    summary="查询单张名片",
+    response_description="名片详细信息",
+)
 async def get_one(card_id: int, session: AsyncSession = Depends(get_session)):
     """根据 ID 查一张名片"""
     card = await session.get(Card, card_id)
@@ -90,7 +101,13 @@ async def get_one(card_id: int, session: AsyncSession = Depends(get_session)):
 # ============================================
 # POST —— 新增
 # ============================================
-@router.post("/", status_code=201)
+@router.post(
+    "/",
+    status_code=201,
+    summary="新增名片",
+    description="创建一张新名片，所有字段通过校验后写入数据库。",
+    response_description="新创建的名片信息",
+)
 async def create_card(card_in: CardCreate, session: AsyncSession = Depends(get_session)):
     """新增一张名片"""
     card = Card(**card_in.model_dump())

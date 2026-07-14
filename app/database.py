@@ -4,9 +4,10 @@ database.py —— 数据库连接配置
 """
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import declarative_base
+from app.config import settings
 
 # PostgreSQL 连接地址（和之前一模一样）
-DATABASE_URL = "postgresql+asyncpg://postgres@localhost:5433/fastapi_learning"
+DATABASE_URL =settings.database_url
 
 # 创建异步引擎 —— 这是和数据库通信的"底层通道"
 engine = create_async_engine(DATABASE_URL, echo=False)

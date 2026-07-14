@@ -72,7 +72,13 @@ async def get_current_user(
 # ============================================
 # POST —— 注册
 # ============================================
-@router.post("/register", status_code=201)
+@router.post(
+    "/register",
+    status_code=201,
+    summary="用户注册",
+    description="注册新账号，用户名不可重复，密码使用 bcrypt 加密存储。",
+    response_description="注册成功的用户信息（不含密码）",
+)
 async def register(req: UserRegister, session: AsyncSession = Depends(get_session)):
     """
     注册接口
@@ -107,7 +113,12 @@ async def register(req: UserRegister, session: AsyncSession = Depends(get_sessio
 # ============================================
 # POST —— 登录
 # ============================================
-@router.post("/login")
+@router.post(
+    "/login",
+    summary="用户登录",
+    description="验证用户名和密码，返回 JWT 令牌用于后续受保护的接口。",
+    response_description="JWT 令牌（access_token）",
+)
 async def login(req: UserLogin, session: AsyncSession = Depends(get_session)):
     """
     登录接口
@@ -141,7 +152,12 @@ async def login(req: UserLogin, session: AsyncSession = Depends(get_session)):
 # ============================================
 # GET —— 查看个人信息（需要登录才能访问）
 # ============================================
-@router.get("/me")
+@router.get(
+    "/me",
+    summary="查看个人信息（需登录）",
+    description="根据请求头携带的 JWT 令牌返回当前登录用户的信息。",
+    response_description="当前用户信息",
+)
 async def get_me(
     user: User = Depends(get_current_user)  # ← 依赖注入：自动验证身份
 ):

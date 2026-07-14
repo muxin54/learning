@@ -2,15 +2,16 @@
 auth.py —— JWT 令牌工具
 负责：生成令牌（登录用）、验证令牌（后续请求用）
 """
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta,timezone
 from jose import JWTError, jwt
+from app.config import settings
 
 # ============================================
 # 配置（真实项目放环境变量，这里先写死）
 # ============================================
-SECRET_KEY = "abcdef123456"  # 签名密钥，绝对不能泄露
-ALGORITHM = "HS256"           # 签名算法
-EXPIRE_MINUTES = 60           # 令牌有效期（分钟）
+SECRET_KEY = settings.secret_key  # 签名密钥，绝对不能泄露
+ALGORITHM = settings.algorithm          # 签名算法
+EXPIRE_MINUTES = settings.expire_minutes           # 令牌有效期（分钟）
 
 
 def create_token(data: dict) -> str:
@@ -22,7 +23,7 @@ def create_token(data: dict) -> str:
     比喻：银行柜台给你打印的排号纸条
     """
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=EXPIRE_MINUTES)
+    expire = datetime.now(timezone.utc) + timedelta(minutes=EXPIRE_MINUTES)
     to_encode["exp"] = expire  # exp = 过期时间，到期自动失效
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
