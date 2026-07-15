@@ -2,10 +2,8 @@
 models.py —— ORM 模型（数据库表的 Python 映射）
 一张表 = 一个类
 """
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, Text, ForeignKey, func
 from app.database import Base
-from sqlalchemy import DateTime,Boolean,func
-from datetime import datetime
 
 
 
@@ -51,3 +49,20 @@ class Todo(Base):
     title=Column(String(200),nullable=False)
     done=Column(Boolean,default=False)
     created_at=Column(DateTime,default=func.now())
+
+class Post(Base):
+    __tablename__ = "posts"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    title = Column(String(200), nullable=False)
+    content = Column(Text, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime, default=func.now())
+
+
+class Comment(Base):
+    __tablename__ = "comments"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    content = Column(String(500), nullable=False)
+    post_id = Column(Integer, ForeignKey("posts.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime, default=func.now())

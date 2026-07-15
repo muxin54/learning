@@ -9,7 +9,7 @@ from contextlib import asynccontextmanager
 import time
 
 from app.database import engine, Base
-from app.routers import cards, users, todo
+from app.routers import cards, users, todo,posts
 from app.logging_config import logger          # ← 用 logger 替代 print
 
 @asynccontextmanager
@@ -26,6 +26,7 @@ tags_metadata = [
     {"name": "名片管理", "description": "名片 CRUD 增删改查，支持搜索、分页、文件上传。"},
     {"name": "用户认证", "description": "注册、登录、JWT 令牌管理、个人信息查询。"},
     {"name": "待办事项", "description": "个人待办清单，支持完成状态过滤与分页。需登录才能新增/修改/删除。"},
+    {"name": "博客文章", "description": "简易博客系统：发文章、评论。公开阅读，发文章/评论需登录，只能修改自己的内容。"},
 ]
 
 app = FastAPI(
@@ -41,6 +42,7 @@ app = FastAPI(
 app.include_router(cards.router)   # 名片管理
 app.include_router(users.router)   # 用户认证（注册/登录）
 app.include_router(todo.router)
+app.include_router(posts.router)
 
 
 # ---- 校验错误美化：把 422 英文改成中文提示 ----

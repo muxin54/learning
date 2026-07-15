@@ -82,3 +82,37 @@ class TodoOut(BaseModel):
     done:bool
     created_at:datetime
     model_config= {"from_attributes": True}
+
+
+class PostCreate(BaseModel):
+    title: str
+    content: str
+
+
+class PostUpdate(BaseModel):
+    title: str | None = None
+    content: str | None = None
+
+
+class PostOut(BaseModel):
+    id: int
+    title: str
+    content: str
+    user_id: int
+    created_at: datetime
+    model_config = {"from_attributes": True}
+
+
+class CommentCreate(BaseModel):
+    content: str
+
+
+class CommentOut(BaseModel):
+    id: int
+    content: str
+    post_id: int
+    user_id: int
+    created_at: datetime
+    model_config = {"from_attributes": True}
+    model_config = {"from_attributes": True}
+
